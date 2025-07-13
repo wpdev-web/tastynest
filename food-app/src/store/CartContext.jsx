@@ -15,11 +15,11 @@ function cartReducer(state, action) {
 
         if (existingCartItemIndex >= 0) {
             const existingItem = state.items[existingCartItemIndex];
-            updatedItems = {
+            const updatedItem = {
                 ...existingItem,
                 quantity: existingItem.quantity + 1
             };
-            updatedItems[existingCartItemIndex] = updatedItems;
+            updatedItems[existingCartItemIndex] = updatedItem;
         } else {
             updatedItems.push({ ...action.item, quantity: 1 });
         }
@@ -33,14 +33,14 @@ function cartReducer(state, action) {
     if (action.type === 'REMOVE_ITEM') {
        const existingCartItemIndex = state.items.findIndex(item => item.id === action.id);
        const existingCartItem = state.items[existingCartItemIndex];
-
+        const updatedItems = [...state.items];
        if (existingCartItem.quantity === 1) {
-           const updatedItems = [...state.items];
+           
            updatedItems.splice(existingCartItemIndex, 1);
         
        }else{
-        const updatedItems = {...existingCartItem, quantity: existingCartItem.quantity - 1};
-        updatedItems[existingCartItemIndex] = updatedItems;
+        const updatedItem = {...existingCartItem, quantity: existingCartItem.quantity - 1};
+        updatedItems[existingCartItemIndex] = updatedItem;
        }
          return {
               ...state,
@@ -50,11 +50,12 @@ function cartReducer(state, action) {
     return state; // Return the current state if no action matches
 }
 
-export function cartContextProvider({ children }) {
+// ...existing code...
 
-    const [cart, dispatchCartAction]=useReducer(cartReducer, { items: []});
+function CartContextProvider({ children }) {
+    const [cart, dispatchCartAction] = useReducer(cartReducer, { items: [] });
 
-    const CartContext = {
+    const contextValue = {
         items: cart.items,
         addItem: (item) => {
             dispatchCartAction({ type: 'ADD_ITEM', item });
@@ -64,11 +65,12 @@ export function cartContextProvider({ children }) {
         },
     };
 
+    console.log("CartContextProvider rendered with items:", contextValue.items);
     return (
-        <CartContext.Provider value={CartContext}>
+        <CartContext.Provider value={contextValue}>
             {children}
         </CartContext.Provider>
     );
 }
 
-export default CartContext;
+export { CartContext, CartContextProvider };
