@@ -17,14 +17,44 @@ export default function Checkout(){
     function handleClose(){
         userProgressCtx.hideCheckout();
     }
+
+
+   function handleSubmit(event){
+        event.preventDefault();
+        // Here you would typically handle the form submission, e.g., send data to a server
+        const fd = new FormData(event.target);
+        const formData = {
+            name: fd.get("name"),
+            email: fd.get("email"),
+            street: fd.get("street"),
+            postalCode: fd.get("postal-code"),
+            city: fd.get("city"),
+            totalAmount: cartTotal
+        };
+        console.log(formData);
+        fetch("http://localhost:3000/orders", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+               order:{
+                items:cartCtx.items,
+                customer: formData
+               }
+             }),
+            
+        });
+        userProgressCtx.hideCheckout();
+    }
    
 
   return (
      <Modal open={userProgressCtx.progress==='checkout'} onClose={handleClose}>
-        <form>
+        <form onSubmit={handleSubmit}>
             <h2>Checkout</h2>
             <p>Total Amount: {currencyFormat.format(cartTotal)}</p>
-            <Input label="Full Name" Id="full-name"  type="text" />
+            <Input label="Name" Id="name"  type="text" />
             <Input label="E-mail" Id="email"  type="email" />
             <Input label="Street" Id="street"  type="text" />
             <div className="control-row">
